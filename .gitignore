@@ -1,0 +1,6 @@
+__pycache__/
+.vscode/
+dist/
+*.tar.gz
+*.pkg.tar.zst
+*.log
