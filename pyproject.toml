@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "pyprpnet"
+version = "0.1.0"
+description = "PyPRPNet is a library to control all aspects of the PRPNet client (https://prpnet.primegrid.com)"
+authors = ["Michael John <michael.john@gmx.at>"]
+license = "MIT"
+readme = "README.md"
+include = ["run-prp.py"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+requests = "^2.28.1"
+py7zr = "^0.20.2"
+psutil = "^5.9.4"
+natsort = "^8.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.urls]
+homepage = "https://github.com/amstelchen/PyPRPNet"
+repository = "https://github.com/amstelchen/PyPRPNet"
+documentation = "https://github.com/amstelchen/PyPRPNet"
