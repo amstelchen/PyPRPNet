@@ -11,7 +11,11 @@ for key, value in prp._get_config().items():
     print(f'{key:14s} : {value}')
 #print(prp.get_user())      # ok
 #prp.stop_all()            # ok
-#prp.start(1)              # ok
+#prp.start_slot(1)              # ok
 #prp.start_all()            # ok
 for s in prp.status():
     print(s)
+#for w in prp.workunits():
+#    print(w)
+#print(prp.workunits())
+#print(prp.status())

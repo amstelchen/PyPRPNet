@@ -12,9 +12,7 @@ TBD
 
 Steps assume that `python` (>= 3.7) and `pip` are already installed.
 
-Install dependencies (see sections below)
-
-Then, run:
+Install from PyPI:
 
     $ pip install pyprpnet
 
@@ -24,7 +22,7 @@ or from the wheel:
 
 Install directly from ``github``:
 
-    $ pip install git+https://github.com/amstelchen/PyPRPNet#eggPyPRPNet
+    $ pip install git+https://github.com/amstelchen/PyPRPNet#egg=PyPRPNet
 
 
 #### Usage
@@ -68,27 +66,23 @@ Install directly from ``github``:
 
     prp.stop_all()
 
-    prp.start(1)
+    prp.start_slot(1)
 
     for s in prp.status():
         print(s)
+    {'WorkUnit': '1668523703 300574!-1', 'Status': 'running', 'Progress': '2912500/5036027', 'Percent': '57.83%', 'Slot': 1}
+    ...
 
-    {'WorkUnit': '1668523703 300574!-1', 'Status': 'running', 'Slot': 1}
-    {'WorkUnit': '1668541418 300584!-1', 'Status': 'stopped', 'Slot': 2}
-    {'WorkUnit': '1668541419 300597!+1', 'Status': 'stopped', 'Slot': 3}
-    {'WorkUnit': '1668541420 300601!+1', 'Status': 'stopped', 'Slot': 4}
-    {'WorkUnit': '1668541419 300595!+1', 'Status': 'stopped', 'Slot': 5}
-    {'WorkUnit': '1668541419 300598!-1', 'Status': 'stopped', 'Slot': 6}
-    {'WorkUnit': '1668541419 300596!+1', 'Status': 'stopped', 'Slot': 7}
-    {'WorkUnit': '1668541419 300599!+1', 'Status': 'stopped', 'Slot': 8}
-    {'WorkUnit': '1668541419 300600!-1', 'Status': 'stopped', 'Slot': 9}
-    {'WorkUnit': '1668541419 300594!-1', 'Status': 'stopped', 'Slot': 10}
-    {'WorkUnit': '1668541419 300597!-1', 'Status': 'stopped', 'Slot': 11}
-    {'WorkUnit': '1668541419 300588!-1', 'Status': 'stopped', 'Slot': 12}
-    {'WorkUnit': '1668541419 300592!-1', 'Status': 'stopped', 'Slot': 13}
-    {'WorkUnit': '1668541419 300589!+1', 'Status': 'stopped', 'Slot': 14}
-    {'WorkUnit': '1668541418 300585!+1', 'Status': 'stopped', 'Slot': 15}
-    {'WorkUnit': '1668541418 300586!-1', 'Status': 'stopped', 'Slot': 16}
+    prp.workunits()
+    ServerName=prpnet.primegrid.com
+    PortID=12002
+    ServerVersion=5.4.3
+    ServerType=6
+    Start WorkUnit 1668541419 300594!-1 0 300594 0 -1 0
+    Main: 300594!-1 inprogress na na na na 2 -1 0 0.000000 0
+    End WorkUnit 1668541419 300594!-1
+    ...
+
 
 #### Reporting bugs
 

@@ -30,7 +30,7 @@ import json
 from typing import Dict, List
 import py7zr
 from time import sleep
-from subprocess import Popen, DEVNULL
+from subprocess import Popen, DEVNULL, STDOUT, PIPE
 from psutil import cpu_count
 from natsort import natsorted, ns
 
@@ -115,7 +115,6 @@ class PyPRPNet:
 
         with py7zr.SevenZipFile(filename, mode='r') as z:
             allfiles = z.getnames()
-            #print(allfiles)
             z.extract(path=os.path.join(self._path, 'programs'), targets=targets)
         with py7zr.SevenZipFile(filename, mode='r') as z:
             z.extract(path=os.path.join(self._path, 'programs'), targets=[client + '/master_prpclient.ini'])
@@ -143,46 +142,48 @@ class PyPRPNet:
 
         :return: all workunits of the clients that are setup.
         """
-        #assert api_part is not None
-        #api_url: str = api_part + '/slots'
         res = []
-        for path in os.listdir(os.path.join(self._path, 'slots')):
-            # check if current path is a file
+        for path in natsorted(os.listdir(os.path.join(self._path, 'slots')), alg=ns.PATH | ns.IGNORECASE):
+            lines = ""
             if os.path.isdir(os.path.join(self._path, 'slots', path)):
-                #print(os.path.join(self._path, 'slots', path))
                 file = os.path.join(self._path, 'slots', path, 'work_FPS.save')
                 if os.path.isfile(file):
                     with open(file, "rt") as workfile:
                         for line in workfile.readlines():
-                            print(line.strip())
-                #res.append(path)
+                            lines += line #.strip()
+                res.append({"Slot": path, "Lines": lines})
         return res
 
     def status(self) -> List[dict]:
         """
-        Returns all workunits of the clients that are setup, but as a dictionary.
+        Returns all workunits of the clients that are setup, but as a list of dictionaries.
 
-        :return: all workunits of the clients that are setup, but as a dictionary.
+        :return: all workunits of the clients that are setup, but as a list of dictionaries.
         """
-        #assert api_part is not None
-        #api_url: str = api_part + '/slots'
         res = []
         for path in natsorted(os.listdir(os.path.join(self._path, 'slots')), alg=ns.PATH | ns.IGNORECASE):
-            # check if current path is a file
+            progress = ""
+            percent = ""
             if os.path.isdir(os.path.join(self._path, 'slots', path)):
-                #print(os.path.join(self._path, 'slots', path))
                 file = os.path.join(self._path, 'slots', path, 'work_FPS.save')
                 lock = os.path.join(self._path, 'slots', path, 'client.lock')
+                stat = os.path.join(self._path, 'slots', path, 'prpclient.status')
                 if os.path.isfile(lock):
                     status = "running"
                 else:
                     status = "stopped"
+                if os.path.isfile(stat):
+                    with open(stat, "rt") as statfile:
+                        for line in statfile:
+                            pass
+                        if "PRP:" in line:
+                            progress = line.strip().split(" ")[2]
+                            percent = f'{eval(progress)*100:2.2f}%'
                 if os.path.isfile(file):
                     with open(file, "rt") as workfile:
                         for line in workfile.readlines():
                             if line.startswith("End"):
-                                #print(line.strip())
-                                res.append({"WorkUnit": line.strip("End WorkUnit ").strip(), "Status": status, "Slot": int(path)})
+                                res.append({"WorkUnit": line.strip("End WorkUnit ").strip(), "Status": status, "Progress": progress, "Percent": percent, "Slot": int(path)})
         return res
 
     def get_user_old(self) -> int:
@@ -195,7 +196,6 @@ class PyPRPNet:
         if os.path.isfile(file):
             with open(file, "rt") as conffile:
                 for line in conffile.readlines():
-                    #if not line.startswith("//"):
                     if line.startswith("userid"):
                         return line.strip()
 
@@ -215,14 +215,12 @@ class PyPRPNet:
 
         :return: a list of strings from the configuration file.
         """
-        #cnf = []
         cnf = {}
         file = os.path.join(self._path, 'master_prpclient.ini')
         if os.path.isfile(file):
             with open(file, "rt") as conffile:
                 for line in conffile.readlines():
                     if not line.startswith("//") and len(line.strip()) > 0:
-                        #cnf.append(line.strip())
                         line = line.strip()
                         cnf[line.split("=")[0]] = line.split("=")[1]
                 return cnf
@@ -263,10 +261,8 @@ class PyPRPNet:
         """
         targets = ["llr", "pfgw64", "genefer", "genefer80", "genefercuda", "genefx64", "wwww", "wwwwcl"]
         for victim in targets:
-            #os.system("killall -2 " + victim)
             Popen(["killall", "-", victim], shell=False, stdout=DEVNULL, stderr=DEVNULL)
         sleep(5)
-        #os.system("killall -2 prpclient")
         Popen(["killall", "-", "prpclient"], shell=False, stdout=DEVNULL, stderr=DEVNULL)
 
     def start_slot(self, slot: int) -> int:
@@ -280,7 +276,8 @@ class PyPRPNet:
         if os.path.isdir(slotpath):
             os.chdir(slotpath)
             #return os.system("./prpclient")
-            Popen("./prpclient", shell=False, stdout=DEVNULL, stderr=DEVNULL)
+            with open("prpclient.status", "a") as fp_status:
+                Popen(["./prpclient"], shell=False, stdout=PIPE, stderr=fp_status)
 
     def start_all(self):
         """
@@ -289,8 +286,4 @@ class PyPRPNet:
         :return: TBD.
         """
         for slot in range(1, cpu_count() + 1):
-            slotpath = os.path.join(self._path, 'slots', str(slot))
-            if os.path.isdir(slotpath):
-                os.chdir(slotpath)
-                #return os.system("./prpclient")
-                Popen("./prpclient", shell=False, stdout=DEVNULL, stderr=DEVNULL)
+            self.start_slot(slot)
