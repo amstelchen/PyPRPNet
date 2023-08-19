@@ -1,7 +1,7 @@
 '''===========================================================================
 MIT License
 
-Copyright (c) 2022 Michael John
+Copyright (c) 2022, 2023 Michael John
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ import sys
 import shutil
 import requests
 import json
-from typing import Dict, List
+from typing import Dict, List, Union
 import py7zr
 from time import sleep
 from subprocess import Popen, DEVNULL, STDOUT, PIPE
@@ -35,8 +35,8 @@ from psutil import cpu_count
 from natsort import natsorted, ns
 
 __licence__ = "MIT License"
-__copyright__ = "Copyright (c) 2022 Michael John"
-__version__ = "0.1.0"
+__copyright__ = "Copyright (c) 2022, 2023 Michael John"
+__version__ = "0.2.0"
 
 def is_64bit() -> bool:
     """check if running platform is 64bit python."""
@@ -114,7 +114,7 @@ class PyPRPNet:
                     fd.write(chunk)
 
         with py7zr.SevenZipFile(filename, mode='r') as z:
-            allfiles = z.getnames()
+            # allfiles = z.getnames()
             z.extract(path=os.path.join(self._path, 'programs'), targets=targets)
         with py7zr.SevenZipFile(filename, mode='r') as z:
             z.extract(path=os.path.join(self._path, 'programs'), targets=[client + '/master_prpclient.ini'])
@@ -154,7 +154,7 @@ class PyPRPNet:
                 res.append({"Slot": path, "Lines": lines})
         return res
 
-    def status(self) -> List[dict]:
+    def status(self, format: str = "") -> Union[List[dict], str]:
         """
         Returns all workunits of the clients that are setup, but as a list of dictionaries.
 
@@ -184,9 +184,12 @@ class PyPRPNet:
                         for line in workfile.readlines():
                             if line.startswith("End"):
                                 res.append({"WorkUnit": line.strip("End WorkUnit ").strip(), "Status": status, "Progress": progress, "Percent": percent, "Slot": int(path)})
-        return res
+        if format == "json":
+            return json.dumps(res, indent=4)
+        else:
+            return res
 
-    def get_user_old(self) -> int:
+    def get_user_email(self) -> str:
         """
         Returns the id of the user, old way.
 
@@ -196,18 +199,19 @@ class PyPRPNet:
         if os.path.isfile(file):
             with open(file, "rt") as conffile:
                 for line in conffile.readlines():
-                    if line.startswith("userid"):
-                        return line.strip()
+                    if line.startswith("email"):
+                        email = line.split("=")[1]
+                        return email.strip()
 
-    def get_user(self) -> int:
+    def get_userid(self) -> str:
         """
         Returns the id of the user, via _get_config().
 
         :return: id of the user.
         """
-        for line in self._get_config():
-            if "userid" in line:
-                return line.split("=")[1]
+        for k, v in self._get_config().items():
+            if "userid" in k:
+                return v # .split("=")[1]
 
     def _get_config(self):
         """
