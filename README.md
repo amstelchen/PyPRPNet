@@ -10,7 +10,7 @@ TBD
 
 #### Installation
 
-Steps assume that `python` (>= 3.7) and `pip` are already installed.
+Steps assume that `python` (>= 3.8) and `pip` are already installed.
 
 Install from PyPI:
 
@@ -18,7 +18,7 @@ Install from PyPI:
 
 or from the wheel:
 
-    $ pip install pyprpnet-0.1.0-py3-none-any.whl
+    $ pip install pyprpnet-0.2.0-py3-none-any.whl
 
 Install directly from ``github``:
 
@@ -27,12 +27,12 @@ Install directly from ``github``:
 
 #### Usage
 
-    >>> import pyprpnet as PRP
+    >>> import pyprpnet as prp
 
     >>> prp = PRP.PyPRPNet(client_path="/path/to/workdir")
 
     >>> print(prp.version())
-    PyPRPNet 0.1.0 (64bit)
+    PyPRPNet 0.2.0 (64bit)
     MIT License
     Copyright (c) 2022 Michael John
 
@@ -62,18 +62,29 @@ Install directly from ``github``:
     debuglevel     : 0
     echotest       : 1
 
-    prp.start_all()
+    >>> prp.start_all()
 
-    prp.stop_all()
+    >>> prp.stop_all()
 
-    prp.start_slot(1)
+    >>> prp.start_slot(1)
 
-    for s in prp.status():
-        print(s)
+    >>> for s in prp.status():
+    ...     print(s)
     {'WorkUnit': '1668523703 300574!-1', 'Status': 'running', 'Progress': '2912500/5036027', 'Percent': '57.83%', 'Slot': 1}
     ...
 
-    prp.workunits()
+    >>> prp.status(format='json')
+    [
+        {
+            "WorkUnit": "1668523703 300574!-1",
+            "Status": "running",
+            "Progress": "3115000/5036027",
+            "Percent": "61.85%",
+            "Slot": 1
+        },
+    ...
+
+    >>> prp.workunits()
     ServerName=prpnet.primegrid.com
     PortID=12002
     ServerVersion=5.4.3

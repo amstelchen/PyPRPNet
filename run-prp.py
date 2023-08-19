@@ -1,3 +1,7 @@
+__licence__ = "MIT License"
+__copyright__ = "Copyright (c) 2022, 2023 Michael John"
+__version__ = "0.2.0"
+
 import pyprpnet as PRP
 
 prp = PRP.PyPRPNet(client_path="/home/mic/Downloads/prpclient-5.4.0a-linux_64/")
